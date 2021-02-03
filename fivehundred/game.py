@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-
-
-"""
-
 import argparse
 import random
 
@@ -26,7 +21,7 @@ class Card(object):
 
     suit_names = ["S", "C", "D", "H"]
     suit_colours = ["B", "B", "R", "R"]
-    rank_names = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+    rank_names = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
 
     def __init__(self, suit=None, rank=None, joker=False):
         self.suit = suit
@@ -38,10 +33,18 @@ class Card(object):
         if self.joker:
             return u"\U0001F0CF"
         else:
-            return chr(int('0001f0%s%s' % (
-                'ADCB'[self.suit],
-                '0123456789ABCDE'['BA23456789TJCQK'.index(Card.rank_names[self.rank])]
-            ), base=16))
+            return chr(
+                int(
+                    "0001f0%s%s"
+                    % (
+                        "ADCB"[self.suit],
+                        "0123456789ABCDE"[
+                            "BA23456789TJCQK".index(Card.rank_names[self.rank])
+                        ],
+                    ),
+                    base=16,
+                )
+            )
 
     def __lt__(self, other):
         """Compares this card to other, first by suit, then rank"""
@@ -54,9 +57,9 @@ class Card(object):
         if trump_suit is not None:
             if self.rank == 9:
                 if trump_suit == self.suit:
-                    return 'Right'
+                    return "Right"
                 elif Card.suit_colours[trump_suit] == Card.suit_colours[self.suit]:
-                    return 'Left'
+                    return "Left"
 
     def value(self):
         """Value of card according to current trump suit
@@ -71,13 +74,13 @@ class Card(object):
 
         if self.joker:  # joker always highest
             return 400
-        elif trump_suit is None: # no trumps
+        elif trump_suit is None:  # no trumps
             return 0
-        elif self.bower() == 'Right': # right bower
+        elif self.bower() == "Right":  # right bower
             return 300
-        elif self.bower() == 'Left': # left bower
+        elif self.bower() == "Left":  # left bower
             return 200
-        elif trump_suit == self.suit: # other trumps
+        elif trump_suit == self.suit:  # other trumps
             return self.rank + 100
         else:
             return 0
@@ -97,7 +100,7 @@ class Deck(object):
         self.cards = []
         for suit in range(4):
             for rank in range(2, 13):
-                if rank > 2 or suit > 1: # 4-player deck
+                if rank > 2 or suit > 1:  # 4-player deck
                     card = Card(suit, rank)
                     self.cards.append(card)
         # add joker
@@ -106,7 +109,7 @@ class Deck(object):
 
     def __str__(self):
         res = [str(card) for card in self.cards]
-        return ' '.join(res)
+        return " ".join(res)
 
     def add_card(self, card):
         """Adds a card to the deck."""
@@ -164,7 +167,7 @@ class Hand(Deck):
       possible_index (list): hand index of possible
     """
 
-    def __init__(self, label=''):
+    def __init__(self, label=""):
         self.label = label
         self.cards = []
         self.possible = []
@@ -212,9 +215,9 @@ class Bid(object):
     possible = []
     for trick in range(6, 11):
         for suit in range(5):
-            possible.append('%s%s' % (trick, 'SCDHN'[suit]))
-    possible.insert(possible.index('8C'), 'CM')
-    possible.insert(possible.index('10N'), 'OM')
+            possible.append("%s%s" % (trick, "SCDHN"[suit]))
+    possible.insert(possible.index("8C"), "CM")
+    possible.insert(possible.index("10N"), "OM")
 
     def __init__(self, bid=None):
         self.bid = None
@@ -237,7 +240,7 @@ class Bid(object):
                 # tricks, rank, suit
                 if self.misere is None:
                     self.tricks = int(bid[0:-1])
-                    self.suit_rank = 'SCDHN'.index(bid[-1])
+                    self.suit_rank = "SCDHN".index(bid[-1])
                     if self.suit_rank < 4:
                         self.suit = self.suit_rank
             else:
@@ -261,7 +264,7 @@ class Bid(object):
         if self.bid:
             return self.bid
         else:
-            return 'Ps'
+            return "Ps"
 
     def __lt__(self, other):
         """Compares this bid to other by points.
@@ -358,7 +361,9 @@ class Round(object):
                     self.highest_bid = bid
                     self.highest_bidder = self.turn
                     self.increment_turn()
-                    self.possible_bids = Bid.possible[Bid.possible.index(str(bid))+1:]
+                    self.possible_bids = Bid.possible[
+                        Bid.possible.index(str(bid)) + 1 :
+                    ]
                 else:
                     print(bid.points(), self.highest_bid.points())
                     print("Current bid must be higher than", self.highest_bid)
@@ -395,9 +400,9 @@ class Round(object):
         bid_team = self.highest_bidder % 2
         off_team = (self.highest_bidder + 1) % 2
 
-        if self.highest_bid.misere: # misere
+        if self.highest_bid.misere:  # misere
             bid_made = self.tricks_won[bid_team] == 0
-        else: # non-misere
+        else:  # non-misere
             bid_made = self.tricks_won[bid_team] >= self.highest_bid.tricks
             self.scores[off_team] += self.tricks_won[off_team] * 10
 
@@ -406,6 +411,7 @@ class Round(object):
             self.scores[bid_team] += self.highest_bid.points()
         else:
             self.scores[bid_team] -= self.highest_bid.points()
+
 
 class Trick(Deck):
     """Represents a trick.
@@ -432,7 +438,7 @@ class Trick(Deck):
 
     def __str__(self):
         res = [str(card) for card in self.cards]
-        return ' '.join(res)
+        return " ".join(res)
 
     def get_winner(self):
         """Gets the current winning card index"""
@@ -517,11 +523,13 @@ class Game(object):
         self.round = Round(self.round_number, self.dealer)
         trump_suit = None
         self.deal()
-        self.round.starting_hands = [player.cards[:] for player in self.players] + [self.kitty.cards[:]]
+        self.round.starting_hands = [player.cards[:] for player in self.players] + [
+            self.kitty.cards[:]
+        ]
 
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print('Round %s' % (self.round_number))
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("Round %s" % (self.round_number))
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
     def bid_round(self, policy):
         """Starts a round of bidding."""
@@ -529,9 +537,9 @@ class Game(object):
         br = self.round
         br.turn = (self.dealer + 1) % 4
 
-        print('\n========================================')
-        print('Begin bidding')
-        print('========================================')
+        print("\n========================================")
+        print("Begin bidding")
+        print("========================================")
 
         # bidding in progress
         while br.status == "Bidding in progress":
@@ -540,39 +548,47 @@ class Game(object):
                 br.make_bid(Bid(None))
                 continue
 
-            if br.turn == HUMAN_PLAYER or policy == 'human':
-                print('\n--------------------------')
-                print('Status        :', br.status)
-                print('Bid History   :', '|'.join([str(bid) for bid in br.bids]))
+            if br.turn == HUMAN_PLAYER or policy == "human":
+                print("\n--------------------------")
+                print("Status        :", br.status)
+                print("Bid History   :", "|".join([str(bid) for bid in br.bids]))
                 if br.highest_bidder is not None:
-                    print('Highest Bidder:', self.players[br.highest_bidder].label)
-                print('--------------------------')
-                print('{0} - {1}'.format(self.players[br.turn].label, self.players[br.turn]))
-                print('Possible -', ' '.join(br.possible_bids))
-                bid_text = input('Bid (blank for pass):')
+                    print("Highest Bidder:", self.players[br.highest_bidder].label)
+                print("--------------------------")
+                print(
+                    "{0} - {1}".format(
+                        self.players[br.turn].label, self.players[br.turn]
+                    )
+                )
+                print("Possible -", " ".join(br.possible_bids))
+                bid_text = input("Bid (blank for pass):")
             else:
                 pol = Policy()
                 try:
-                    bid_text = pol.bid((self.players[br.turn], br.bids, br.possible_bids, Bid), policy)
+                    bid_text = pol.bid(
+                        (self.players[br.turn], br.bids, br.possible_bids, Bid), policy
+                    )
                 except IndexError:
-                    bid_text = ''
+                    bid_text = ""
             br.make_bid(Bid(bid_text))
             br.update_status()
 
         # bidding finished
         if br.status == "Bidding complete":
-            print('\n--------------------------')
-            print('Bidding complete')
-            print(self.players[br.highest_bidder].label, '-', br.highest_bid)
-            print('|'.join([str(bid) for bid in br.bids]))
-            print('--------------------------')
+            print("\n--------------------------")
+            print("Bidding complete")
+            print(self.players[br.highest_bidder].label, "-", br.highest_bid)
+            print("|".join([str(bid) for bid in br.bids]))
+            print("--------------------------")
             br.trump_suit = br.highest_bid.suit
-            self.kitty.deal_cards(self.players[br.highest_bidder], 3) # winning bidder gets kitty
+            self.kitty.deal_cards(
+                self.players[br.highest_bidder], 3
+            )  # winning bidder gets kitty
 
         elif br.status == "Bidding all passed":
-            print('\n--------------------------')
-            print('Bidding complete - all passed')
-            print('--------------------------')
+            print("\n--------------------------")
+            print("Bidding complete - all passed")
+            print("--------------------------")
 
     def discard_round(self, policy):
         """Discards extra 3 cards from hand back to kitty.
@@ -584,9 +600,11 @@ class Game(object):
         dr = self.round
         player = self.players[dr.highest_bidder]
 
-        if dr.highest_bidder == HUMAN_PLAYER or policy == 'human':
-            discard_text = input('Discard indices [0-12] (Enter 3 indices separated by commas, e.g. x,y,z):')
-            cards = [player.cards[int(x)] for x in discard_text.split(',')]
+        if dr.highest_bidder == HUMAN_PLAYER or policy == "human":
+            discard_text = input(
+                "Discard indices [0-12] (Enter 3 indices separated by commas, e.g. x,y,z):"
+            )
+            cards = [player.cards[int(x)] for x in discard_text.split(",")]
         elif policy is not None:
             pol = Policy()
             cards = pol.discard((player.cards, dr.highest_bid), policy)
@@ -595,7 +613,7 @@ class Game(object):
 
         # make discard
         player.move_cards(self.kitty, cards)
-        self.kitty.label = 'Discard'
+        self.kitty.label = "Discard"
 
     def card_round(self, policy):
         """Starts a round of card playing."""
@@ -607,9 +625,9 @@ class Game(object):
             misere = cr.highest_bidder
         cr.turn = cr.highest_bidder
 
-        print('\n========================================')
-        print('Begin card play')
-        print('========================================')
+        print("\n========================================")
+        print("Begin card play")
+        print("========================================")
 
         # card play in progress
         for trick_num in range(10):
@@ -617,24 +635,32 @@ class Game(object):
 
             while not trick.is_complete():
                 self.players[cr.turn].set_possible(trick)
-                if cr.turn == HUMAN_PLAYER or policy == 'human':
-                    print('\n--------------------------')
-                    print('Status        :', cr.status)
-                    print('Bid           :', cr.highest_bid)
-                    print('Trick {0} - {1}'.format(trick_num + 1, trick))
-                    print('--------------------------')
-                    print('{0} - {1} | {2}'.format(
-                        self.players[cr.turn].label,
-                        self.players[cr.turn],
-                        ' '.join([str(card) for card in self.players[cr.turn].possible]),
-                    ))
-                    input_text = 'Card index ({0}):'.format(' '.join([str(_) for _ in self.players[cr.turn].possible_index]))
+                if cr.turn == HUMAN_PLAYER or policy == "human":
+                    print("\n--------------------------")
+                    print("Status        :", cr.status)
+                    print("Bid           :", cr.highest_bid)
+                    print("Trick {0} - {1}".format(trick_num + 1, trick))
+                    print("--------------------------")
+                    print(
+                        "{0} - {1} | {2}".format(
+                            self.players[cr.turn].label,
+                            self.players[cr.turn],
+                            " ".join(
+                                [str(card) for card in self.players[cr.turn].possible]
+                            ),
+                        )
+                    )
+                    input_text = "Card index ({0}):".format(
+                        " ".join([str(_) for _ in self.players[cr.turn].possible_index])
+                    )
                     hand_index = input(input_text)
                     if hand_index:
                         hand_index = int(hand_index)
                 elif policy is not None:
                     pol = Policy()
-                    hand_index = pol.card((self.players[cr.turn], trick, cr.tricks), policy)
+                    hand_index = pol.card(
+                        (self.players[cr.turn], trick, cr.tricks), policy
+                    )
                 else:
                     raise ValueError
 
@@ -645,13 +671,13 @@ class Game(object):
             cr.tricks_won[trick.winner % 2] += 1
             cr.tricks.append(trick)
 
-            print('\n--------------------------')
-            print('Trick         :', trick_num + 1)
-            print('Cards Played  :', trick)
-            print('Lead          :', self.players[trick.lead].label)
-            print('Winner        :', self.players[trick.winner].label)
-            print('Trick Count   :', cr.tricks_won)
-            print('--------------------------')
+            print("\n--------------------------")
+            print("Trick         :", trick_num + 1)
+            print("Cards Played  :", trick)
+            print("Lead          :", self.players[trick.lead].label)
+            print("Winner        :", self.players[trick.winner].label)
+            print("Trick Count   :", cr.tricks_won)
+            print("--------------------------")
 
         # card play complete
         cr.status = "Card play complete"
@@ -664,12 +690,12 @@ class Game(object):
         if max(abs(i) for i in self.scores) >= 500:
             self.status = "Complete"
 
-        print('\n--------------------------')
-        print('Round {0} complete'.format(self.round_number))
-        print('Round Score: ', self.round.scores)
-        print('Game Scores: ', self.scores)
-        print('Game Status: ', self.status)
-        print('--------------------------')
+        print("\n--------------------------")
+        print("Round {0} complete".format(self.round_number))
+        print("Round Score: ", self.round.scores)
+        print("Game Scores: ", self.scores)
+        print("Game Status: ", self.status)
+        print("--------------------------")
 
     def print_hands(self):
         """Sorts and prints hands including kitty."""
@@ -681,39 +707,52 @@ class Game(object):
             print(self.kitty.label, self.kitty)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--play',
+        "--play",
         type=int,
         choices=range(1, 5),
         default=None,
         help="Human player",
     )
     parser.add_argument(
-        '--bidai',
+        "--bidai",
         type=str,
-        choices=["human", "random", "score",],
+        choices=[
+            "human",
+            "random",
+            "score",
+        ],
         default="score",
         help="Bid Round AI",
     )
     parser.add_argument(
-        '--discardai',
+        "--discardai",
         type=str,
-        choices=["human", "random", "lowest",],
+        choices=[
+            "human",
+            "random",
+            "lowest",
+        ],
         default="lowest",
         help="Discard Round AI",
     )
     parser.add_argument(
-        '--cardai',
+        "--cardai",
         type=str,
-        choices=["human", "random", "highest", "basic",],
+        choices=[
+            "human",
+            "random",
+            "highest",
+            "basic",
+        ],
         default="basic",
         help="Card Round AI",
     )
     parser.add_argument(
-        '--savedir',
+        "--savedir",
         type=str,
         help="Directory to save finished game",
         default=None,
@@ -758,6 +797,7 @@ if __name__ == '__main__':
     if args.savedir:
         import pickle
         import time
-        filename = args.savedir + '/' + str(time.time()) + '.500'
-        with open(filename, 'wb') as f:
+
+        filename = args.savedir + "/" + str(time.time()) + ".500"
+        with open(filename, "wb") as f:
             pickle.dump(game, f, pickle.HIGHEST_PROTOCOL)

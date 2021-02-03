@@ -1,7 +1,7 @@
 # Five Hundred Card Game
 Five hundred card game engine with basic rule-based AI. Play the game from the command line.  
 
-Engine built for experimentation with Re-inforcement Learning. _No RL implemented yet_
+Engine built for experimentation with Reinforcement Learning. _No RL implemented yet_
 
 #### AI Components
 3 main components of gameplay:  
